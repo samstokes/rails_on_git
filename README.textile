@@ -25,7 +25,6 @@ Does three things:
   message by rebase-squashing the modification into the commit that introduced
   the migration, which is probably the polite thing to do anyway.
 
-* If you have a *new untracked migration* (i.e. one you haven't @git add@ed
-  yet), prints out a big scary warning message when you commit anything.  This
+* If you have a *new untracked migration* (i.e. one you still need to @git add@), prints out a big scary warning message when you commit anything.  This
   is to catch the case when you commit a bunch of changes but forget to add
   the migration, then everything breaks when someone else gets the changes.
