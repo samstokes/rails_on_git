@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Called by git-commit with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, make this file executable.
+
+# This makes sure migrations get trumpeted as such in the commit message.
+
+tag_first_line() {
+  tag="$1"
+  file="$2"
+  fgrep -q "[$tag]" "$file" || sed -i "1s/^/[$tag] /" "$file"
+}
+
+git status | while read; do
+  echo "$REPLY" | grep -q 'modified.*db/migrate/.*\.rb$' && modified_migration=yup
+  echo "$REPLY" | grep -q 'new file.*db/migrate/.*\.rb$' && new_migration=yup
+
+  echo "$REPLY" | grep -q '^# Changed but not updated' && seen_unstaged=yup
+  echo "$REPLY" | grep -q '^# Untracked' && seen_untracked=yup
+
+  if [[ -n "$seen_untracked" ]] && echo "$REPLY" | grep -q 'db/migrate/.*\.rb$'; then
+    echo >&2 ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ====
+    echo >&2 WARNING! You have untracked migrations! Did you forget to "\"git add\"" them?
+    echo >&2 ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ==== AWOOGA ====
+    echo >&2
+  fi
+
+  if [[ -z "$seen_unstaged" ]] && [[ -n "$modified_migration" ]]; then
+    tag_first_line "MIGRATION MODIFIED" "$1"
+  elif [[ -n "$new_migration" ]]; then
+    tag_first_line "MIGRATION" "$1"
+  fi
+done
