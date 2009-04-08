@@ -1,0 +1,31 @@
+h1. Rails on Git
+
+A collection of git hooks that support Rails-specific workflows.
+
+h2. Hooks
+
+Currently there is only one hook:
+
+h3. commit-msg
+
+Does three things:
+
+* If you're about to commit a *new migration*, prepends [MIGRATION] to your
+  commit message.  This makes other developers more likely to notice, and
+  should hopefully reduce the incidence of conversations that end with "Oh I
+  didn't notice there were new migrations to run".
+  It could also be used by other hooks, e.g. to automatically run migrations
+  that are encountered during a merge.
+
+* If you're committing *changes to an existing migration*, prepends
+  [MIGRATION MODIFIED] to your commit message.  This is deliberately clunky,
+  because changing migrations is probably going to cause problems for anyone
+  who's already run that migration.  Assuming you didn't push your changes
+  between introducing the migration and modifying it, you can avoid this
+  message by rebase-squashing the modification into the commit that introduced
+  the migration, which is probably the polite thing to do anyway.
+
+* If you have a *new untracked migration* (i.e. one you haven't @git add@ed
+  yet), prints out a big scary warning message when you commit anything.  This
+  is to catch the case when you commit a bunch of changes but forget to add
+  the migration, then everything breaks when someone else gets the changes.
